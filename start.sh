@@ -50,13 +50,13 @@ function box () {
   	echo
 } 
 echo
-echo "${RED}    	       @@  @@@  @@@ @@@ @@@@@@@@ @@@      @@@  @@@  @@@@@@
-              @@!  @@!  @@! @@! @@!      @@!      @@!  @@@ !@@    
+echo "${RED}    	       @@  @@@  @@@ @@@ @@@@@@@@  @@@      @@@  @@@  @@@@@@
+              @@!  @@!  @@! ${YELLOW}@${RED} @! @@!      ${YELLOW}@${RED} @!    @@!  @@@ !@@    
               @${YELLOW}!!  !!${RED}@  @${YELLOW}!${RED}@ ${YELLOW}!!${RED}@ @${YELLOW}!!!:!   !!@      @!@  !@!  !@@!! 
                ${YELLOW}!:  ${RED}!!${YELLOW}:  ${RED}!!  !!: !!:      !!:       !: .:!      !:!
-                ::.:  :::   :    :       :           ::    ::.: : 
+                :${RED}:.:  :${RED}::   ${RED}:    :       ${RED}:           ::    ::.${RED}: : 
                                                                   
-          @@@  @@@  @@@@@@   @@@@@@ @@@  @@@  @@@@@@@  @@@@@@  @@@@@@@
+          ${RED}@@@  @@@  @@@@@@   @@@@@@ @@@  @@@  @@@@@@@  @@@@@@  @@@@@@@
           @@!  @@@ @@!  @@@ !@@     @@!  @@@ !@@      @@!  @@@   @@!  
           @!@!@!@! @!@!@!@!  !@@!!  @!@!@!@! !@!      @!@!@!@!   @!!  
           !!:  !!! !!:  !!!     !:! !!:  !!! :!!      !!:  !!!   !!:  
@@ -99,14 +99,14 @@ while true; do #You sure while (y/n)
 done #End sure while (y/n)
 
 echo ${NC}
-airmon-ng start $INTERFACE
-systemctl start NetworkManager.service
-systemctl start wpa_supplicant.service
+
+systemctl stop NetworkManager.service
+systemctl stop wpa_supplicant.service
 
 echo
-box "${YELLOW}[-] ${GREEN} Let's start the dump of the wifi network around you. Press ${YELLOW}CTRL-C${GREEN} when you have finished"
+box "${YELLOW}[-] ${GREEN} Let's dump of the wifi networks. Press ${YELLOW}CTRL-C${GREEN} when you have finished"
 now=$(date +"%Y-%m-%d")
-hcxdumptool -i $INTERFACE -o $now.pcapng --active_beacon --enable_status=15
+hcxdumptool -i $INTERFACE --ignore_warning -o $now.pcapng --active_beacon --enable_status=15
 
 echo
 box "${YELLOW}[-] ${GREEN} Let's decypt the captured pcap file"
