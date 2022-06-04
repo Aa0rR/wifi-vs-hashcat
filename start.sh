@@ -106,7 +106,7 @@ systemctl stop wpa_supplicant.service
 echo
 box "${YELLOW}[-] ${GREEN} Let's dump of the wifi networks. Press ${YELLOW}CTRL-C${GREEN} when you have finished"
 now=$(date +"%Y-%m-%d")
-hcxdumptool -i $INTERFACE --ignore_warning -o $now.pcapng --active_beacon --enable_status=15
+hcxdumptool -i $INTERFACE ù -o $now.pcapng --active_beacon --enable_status=15
 
 echo
 box "${YELLOW}[-] ${GREEN} Let's decypt the captured pcap file"
