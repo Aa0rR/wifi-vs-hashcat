@@ -59,7 +59,7 @@ echo "${RED}
                                                                   
           @@@  @@@  @@@@@@   @@@@@@ @@@  @@@  @@@@@@@  @@@@@@  @@@@@@@
           @@!  @@@ @@!  @@@ !@@     @@!  @@@ !@@      @@!  @@@   @@!  
-          @!@!@!@! @!@!@!@!  !@@!!  @!@!@!@! !@!      @!@!@!@!   @!!  
+          @!@!@!@! @!@!@!@!  !@@!!  @!@!@!@! !@.      @!@!@!@!   @!!  
           !!:  !.! !!:  !!!     !:! !!:  !!! :!!      !!:  !.!   !!.  
            :   : :  :   : : ::.: :   :   : :  :: :: :  :   : :    :   
                                                                       
@@ -75,7 +75,7 @@ fi
 
 box "${YELLOW}[-] ${GREEN} Write the name of the interface:"
 echo "${YELLOW}"
-ip link show | awk '{print $2}'
+ip link show
 echo "${GREEN}_______________"
 read -r -p "${ITALIC_BLUE}--> ${NC}" INTERFACE
 echo
@@ -114,34 +114,38 @@ echo
 box "${YELLOW}[-] ${GREEN} Let's decypt the captured pcap file"
 hcxpcapngtool -o $now.hc22000 -E essidlist$now $now.pcapng
 
-echo
-box "${YELLOW}[-] ${GREEN} Enter the absolute path of the wordlist:"
-read -r -p "${ITALIC_BLUE}--> ${NC}" WORDLISTPATH
+if [ -f $now.hc22000 ]; then
+	echo
+	box "${YELLOW}[-] ${GREEN} Enter the absolute path of the wordlist:"
+	read -r -p "${ITALIC_BLUE}--> ${NC}" WORDLISTPATH
 
-echo
-while true; do #You sure while (y/n)
-	echo "${ITALIC_BLUE}# The entered path is: ${RED} $WORDLISTPATH" 
-	ls -lha $WORDLISTPATH
-	read -r -p "${ITALIC_BLUE}# Are you sure? [y/N] ${NC}" response_path 
-	case "$response_path" in 
-		[yY]) #Sure
-		break 
-		;; 
-		[nN]) #Not sure
-			echo
-			echo "${ITALIC_BLUE}# Retype the wordlist path: ${NC}" 
-			echo
-			read -r -p "${ITALIC_BLUE}--> ${NC}" WORDLISTPATH
-		;;
-		* ) #Default
-			echo "${RED}! Please type only Yy or Nn${NC}" 
- 			echo 
-		;;
-	esac 
-done #End sure while (y/n)
-	
-box "${YELLOW}-] ${GREEN} Crack the captured hc22000 handshake"
-hashcat -m 22000 hash.hc22000 $WORDLISTPATH 
-echo
+	echo
+	while true; do #You sure while (y/n)
+		echo "${ITALIC_BLUE}# The entered path is: ${RED} $WORDLISTPATH" 
+		ls -lha $WORDLISTPATH
+		read -r -p "${ITALIC_BLUE}# Are you sure? [y/N] ${NC}" response_path 
+		case "$response_path" in 
+			[yY]) #Sure
+			break 
+			;; 
+			[nN]) #Not sure
+				echo
+				echo "${ITALIC_BLUE}# Retype the wordlist path: ${NC}" 
+				echo
+				read -r -p "${ITALIC_BLUE}--> ${NC}" WORDLISTPATH
+			;;
+			* ) #Default
+				echo "${RED}! Please type only Yy or Nn${NC}" 
+	 			echo 
+			;;
+		esac 
+	done #End sure while (y/n)
+		
+	box "${YELLOW}[-] ${GREEN} Crack the captured hc22000 handshake"
+	hashcat -m 22000 hash.hc22000 $WORDLISTPATH 
+	echo
 
-box "${YELLOW}[-] ${GREEN} DONE!"
+	box "${YELLOW}[-] ${GREEN} DONE!"
+else
+	box "${YELLOW}[-] ${GREEN} No hashes found! Please restart the script"
+fi
