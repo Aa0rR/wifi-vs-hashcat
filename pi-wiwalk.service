@@ -1,0 +1,8 @@
+[Unit]
+Description=Rasberry pi service for analyze the networks at the startup
+
+[Service]
+ExecStart=/wifi-vs-hashcat/start.sh
+
+[Install]
+WantedBy=multi-user.target
