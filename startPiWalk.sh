@@ -94,7 +94,7 @@ echo
 box "${YELLOW}[-] ${GREEN} Let's dump of the wifi networks. Press ${YELLOW}CTRL-C${GREEN} when you have finished"
 
 mkdir $now-capture
-hcxdumptool -i wlan1 -o $EXTERNALPATH/$now.pcapng --active_beacon --tot=120 -enable_status=15
+hcxdumptool -i wlan1 -o $EXTERNALPATH/$now.pcapng --active_beacon --tot=120 --enable_status=15
 
 echo
 box "${YELLOW}[-] ${GREEN} Let's decypt the captured pcap file"
